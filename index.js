@@ -6,12 +6,30 @@ const port = 3000;
 //   res.send('Stage 0: hello server');
 // });
 
+const memorylist=[
+   {id:'1',title:"Stage 2 task",done: true},
+   {id:'2',title:"Stage 2 task1",done: false},
+   {id:'3',title:"Stage 2 task2",done: true}
+]
 app.get('/', (req, res) => {
   res.json({ name: "Task API", version: "1.0", endpoints: ["/tasks"] });
 });
 
 app.get('/health', (req, res) => {
   res.json({ status:"ok"});
+});
+
+app.get('/tasks', (req, res) => {
+  res.json(memorylist);
+});
+app.get('/tasks/:id', (req, res) => {
+ const taskId = req.params.id;
+ for(let task of memorylist){
+    if(task.id==taskId){
+        return res.json(task);
+    }
+ }
+  return res.status(404).json({error:`Task ${taskId} not found`});
 });
 
 app.listen(port, () => {
