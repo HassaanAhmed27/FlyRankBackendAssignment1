@@ -2,11 +2,15 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./openapi.json");
+
 // app.get('/', (req, res) => {
 //   res.send('Stage 0: hello server');
 // });
 
 app.use(express.json()); 
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 const memorylist=[
    {id:'1',title:"Stage 2 task",done: true},
    {id:'2',title:"Stage 2 task1",done: false},
