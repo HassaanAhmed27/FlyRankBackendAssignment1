@@ -27,7 +27,7 @@ app.get('/tasks/:id', (req, res) => {
  const taskId = req.params.id;
  for(let task of memorylist){
     if(task.id==taskId){
-        return res.json(task);
+        return res.status(201).json(task);
     }
  }
   return res.status(404).json({error:`Task ${taskId} not found`});
@@ -46,9 +46,37 @@ app.post('/tasks',(req,res)=>{
     }
 
     memorylist.push(task);
-    res.status(201).json(task);
+    res.status(200).json(task);
 })
 
+app.put('/tasks/:id',(req,res)=>{
+    const taskId =req.params.id;
+    const taskFromUser =req.body;
+    for(let task of memorylist){
+        if(task.id==taskId){
+            const index=memorylist.indexOf(task);
+            memorylist[index]={
+                ...memorylist[index],
+                ...taskFromUser
+            }
+
+            return res.status(204).json(task);
+        }
+    }
+    return res.status(404).json({error:`Task ${taskId} not found`});
+})
+app.delete('/tasks/:id',(req,res)=>{
+    const taskId =req.params.id;
+    const task =req.body;
+    for(let task of memorylist){
+        if(task.id==taskId){
+            const index=memorylist.indexOf(task);
+            memorylist.splice(index,1);
+            return res.status(204).json(task);
+        }
+    }
+    return res.status(404).json({error:`Task ${taskId} not found`});
+})
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
