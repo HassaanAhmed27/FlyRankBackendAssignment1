@@ -6,6 +6,7 @@ const port = 3000;
 //   res.send('Stage 0: hello server');
 // });
 
+app.use(express.json()); 
 const memorylist=[
    {id:'1',title:"Stage 2 task",done: true},
    {id:'2',title:"Stage 2 task1",done: false},
@@ -31,6 +32,22 @@ app.get('/tasks/:id', (req, res) => {
  }
   return res.status(404).json({error:`Task ${taskId} not found`});
 });
+
+app.post('/tasks',(req,res)=>{
+    const task =req.body;
+    if(!task.id){
+        task.id = `${memorylist.length + 1}`;
+    }
+    if(!task.title){
+        res.status(400).json({error:"Task title is required"});
+    }
+    if(!task.done){
+        task.done=false;
+    }
+
+    memorylist.push(task);
+    res.status(201).json(task);
+})
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
