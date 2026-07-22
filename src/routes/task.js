@@ -1,35 +1,44 @@
 const { Router } = require("express");
 const router = Router();
+const db = require("../database/db.js");
 
-const memorylist = [
-    { id: '1', title: "Stage 2 task", done: true },
-    { id: '2', title: "Stage 2 task1", done: false },
-    { id: '3', title: "Stage 2 task2", done: true }
-];
-
-router.get('/', (req, res) => {
-    res.json({ name: "Task API", version: "1.0", endpoints: ["/tasks"] });
+// Root endpoint
+router.get("/", (req, res) => {
+    res.json({
+        name: "Task API",
+        version: "1.0",
+        endpoints: ["/tasks"]
+    });
 });
 
-router.get('/health', (req, res) => {
+// Health check
+router.get("/health", (req, res) => {
     res.json({ status: "ok" });
 });
 
-router.get('/tasks', (req, res) => {
-    res.json(memorylist);
+// GET all tasks (Live from SQLite)
+router.get("/tasks", (req, res) => {
+    const tasks = db.prepare("SELECT * FROM tasks").all();
+    res.status(200).json(tasks);
 });
 
-router.get('/tasks/:id', (req, res) => {
-    const taskId = req.params.id;
+// GET task by ID (Live from SQLite)
+router.get("/tasks/:id", (req, res) => {
+    const task = db
+        .prepare("SELECT * FROM tasks WHERE id = ?")
+        .get(req.params.id);
 
-    for (let task of memorylist) {
-        if (task.id == taskId) {
-            return res.status(200).json(task);
-        }
+    if (!task) {
+        return res
+            .status(404)
+            .json({ error: `Task ${req.params.id} not found` });
     }
 
-    return res.status(404).json({ error: `Task ${taskId} not found` });
+    res.status(200).json(task);
 });
+
+
+const memorylist = db.prepare("SELECT * FROM tasks").all();
 
 router.post('/tasks', (req, res) => {
     const task = req.body;
