@@ -1,6 +1,6 @@
 # Task API
 
-A simple RESTful Todo Task API built with **Node.js**, **Express.js**, and **JavaScript**. The API demonstrates CRUD (Create, Read, Update, Delete) operations using an in-memory array and includes interactive API documentation using **Swagger UI**.
+A simple RESTful Task API built with **Node.js**, **Express.js**, and **SQLite**. The project demonstrates CRUD operations using Express and persists task data using a SQLite database initialized automatically on application startup.
 
 ---
 
@@ -13,7 +13,10 @@ A simple RESTful Todo Task API built with **Node.js**, **Express.js**, and **Jav
 - Retrieve a task by ID
 - Update an existing task
 - Delete a task
-- Interactive API documentation with Swagger UI
+- Automatic SQLite database creation
+- Automatic table creation
+- Automatic seeding of sample tasks
+- Interactive API documentation using Swagger UI
 
 ---
 
@@ -22,44 +25,82 @@ A simple RESTful Todo Task API built with **Node.js**, **Express.js**, and **Jav
 - Node.js
 - Express.js
 - JavaScript
+- SQLite
+- better-sqlite3
 - Swagger UI Express
 - OpenAPI 3.0
 
 ---
 
+# Why SQLite?
+
+SQLite was chosen because it:
+
+- Stores all data in a single database file.
+- Requires zero database server setup.
+- Is lightweight and easy to use.
+- Persists data between server restarts.
+- Is ideal for small applications and assignments.
+
+---
+
+# Database
+
+The project automatically creates the SQLite database on first startup.
+
+Database location:
+
+```
+src/SQLITE/task.db
+```
+
+When the application starts it automatically:
+
+- Creates `task.db` if it does not exist.
+- Creates the `tasks` table.
+- Inserts three sample tasks if the table is empty.
+
+The database file is usually added to `.gitignore` so every new clone starts with a fresh database.
+
+---
+
 ## Installation
 
-Clone the repository:
+Clone the repository
 
 ```bash
 git clone https://github.com/HassaanAhmed27/FlyRankBackendAssignment1.git
 ```
 
-Move into the project directory:
+Move into the project directory
 
 ```bash
 cd Assignment1
 ```
 
-Install dependencies:
+Install dependencies
 
 ```bash
 npm install
 ```
 
-Run the server:
+---
+
+# Run the Project
+
+Start the server with a single command:
 
 ```bash
 npm start
 ```
 
-The server starts at:
+The server runs at
 
 ```
 http://localhost:3000
 ```
 
-Swagger UI is available at:
+Swagger UI is available at
 
 ```
 http://localhost:3000/docs
@@ -74,53 +115,50 @@ http://localhost:3000/docs
 | GET | `/` | API information |
 | GET | `/health` | Health check |
 | GET | `/tasks` | Get all tasks |
-| GET | `/tasks/:id` | Get a task by ID |
-| POST | `/tasks` | Create a new task |
-| PUT | `/tasks/:id` | Update an existing task |
-| DELETE | `/tasks/:id` | Delete a task |
+| GET | `/tasks/:id` | Get task by ID |
+| POST | `/tasks` | Create task |
+| PUT | `/tasks/:id` | Update task |
+| DELETE | `/tasks/:id` | Delete task |
 
 ---
 
-## Example cURL Output
+# Example SQL Query
 
-Request:
+The following query was used during Stage 4 to verify the database contents.
 
-```bash
-curl -i http://localhost:3000/tasks
+```sql
+SELECT * FROM tasks;
 ```
 
-Output:
+Example output
 
-```http
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
+| id | title | done |
+|----|-------|------|
+| 1 | Bring Eggs | 1 |
+| 2 | Bring Milk | 0 |
+| 3 | Bring Bread | 0 |
 
-[
-  {
-    "id": "1",
-    "title": "Stage 2 task",
-    "done": true
-  },
-  {
-    "id": "2",
-    "title": "Stage 2 task1",
-    "done": false
-  },
-  {
-    "id": "3",
-    "title": "Stage 2 task2",
-    "done": true
-  }
-]
+---
+
+# Database Screenshot
+
+Add your screenshot here after opening the database in **DB Browser for SQLite**.
+
+Example:
+
+```
+images/database.png
+```
+
+```md
+![Database](images/database.png)
 ```
 
 ---
 
 ## Swagger UI
 
-The API is documented using Swagger UI.
-
-### Screenshot
+### Screenshots
 
 ![Swagger UI](images/swagger_ui.png)
 
@@ -135,6 +173,27 @@ The API is documented using Swagger UI.
 ![Swagger UI](images/swagger_ui5.png)
 
 ![Swagger UI](images/swagger_ui6.png)
+
+---
+
+# Automatic Database Setup
+
+A fresh clone of the project requires **no manual database setup**.
+
+Simply run:
+
+```bash
+npm install
+npm start
+```
+
+The application automatically:
+
+- Creates `task.db`
+- Creates the `tasks` table
+- Inserts the three sample tasks
+
+A new user can clone the repository and start the project in just a few minutes without any additional configuration.
 
 ---
 
