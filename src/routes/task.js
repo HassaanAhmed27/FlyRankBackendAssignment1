@@ -40,20 +40,25 @@ router.get("/tasks/:id", (req, res) => {
 
 const memorylist = db.prepare("SELECT * FROM tasks").all();
 
-router.post('/tasks', (req, res) => {
+router.post("/tasks", (req, res) => {
     const task = req.body;
+    const newTask=db;
 
     if (!task.id) {
         task.id = `${memorylist.length + 1}`;
     }
 
     if (!task.title || task.title.trim() === "") {
-        return res.status(400).json({ error: "Task title is required" });
+        return res.status(400).json({
+            error: "Task title is required"
+        });
     }
 
     if (task.done === undefined) {
         task.done = false;
     }
+    const insert = db.prepare("INSERT INTO tasks (title, done) VALUES (?, ?)");
+    insert.run(task.title, task.done);
 
     memorylist.push(task);
 
