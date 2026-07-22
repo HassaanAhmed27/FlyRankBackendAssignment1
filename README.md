@@ -19,6 +19,45 @@ A simple RESTful Task API built with **Node.js**, **Express.js**, and **SQLite**
 - Interactive API documentation using Swagger UI
 
 ---
+## Additional Features
+
+In addition to the core assignment requirements, the following enhancements were implemented:
+
+- **Task Search**
+  - Search tasks by title using the `search` query parameter.
+  - Filter tasks by completion status using the `done` query parameter.
+  - Supports combining both filters in a single request.
+
+  **Examples**
+  ```http
+  GET /tasks?search=Milk
+  GET /tasks?done=true
+  GET /tasks?search=Milk&done=false
+  ```
+
+- **Task Statistics**
+  - Added a `GET /stats` endpoint that computes statistics directly in SQLite using SQL aggregate functions (`COUNT` and `SUM`).
+
+  Example response:
+
+  ```json
+  {
+    "total": 3,
+    "completed": 1,
+    "pending": 2
+  }
+  ```
+
+- **Timestamps**
+  - Added `created_at` and `updated_at` columns to the `tasks` table.
+  - `created_at` is automatically set when a task is created.
+  - `updated_at` is automatically updated whenever a task is modified.
+
+---
+
+## Database Changes
+
+Adding new columns to the existing `tasks` table showed that changing a database schema is more involved than changing application code. This highlights why database migrations exist—they provide a safe and repeatable way to evolve the database structure while preserving existing data.
 
 ## Technologies Used
 

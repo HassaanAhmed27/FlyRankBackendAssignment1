@@ -4,12 +4,14 @@ const db = new Database(
     path.join(__dirname, "../SQLITE/task.db")
 );
 db.exec(`
-    create table if not exists tasks (
-        id integer primary key autoincrement,
-        title text not null,
-        done boolean 
+    CREATE TABLE IF NOT EXISTS tasks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        done BOOLEAN DEFAULT FALSE,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
-`)
+`);
 
 const taskInsert=db.prepare(`select count(*) as count from tasks`);
 if(taskInsert.get().count===0){

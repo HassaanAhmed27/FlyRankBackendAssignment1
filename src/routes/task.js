@@ -18,9 +18,37 @@ router.get("/health", (req, res) => {
 
 // GET all tasks (Live from SQLite)
 router.get("/tasks", (req, res) => {
-    const tasks = db.prepare("SELECT * FROM tasks").all();
+    const { search, done } = req.query;
+
+    let query = "SELECT * FROM tasks";
+    const params = [];
+    const conditions = [];
+
+    if (search) {
+        conditions.push("title LIKE ?");
+        params.push(`%${search}%`);
+    }
+
+    if (done !== undefined) {
+        conditions.push("done = ?");
+        params.push(done === "true" ? 1 : 0);
+    }
+
+    if (conditions.length > 0) {
+        query += " WHERE " + conditions.join(" AND ");
+    }
+
+    const tasks = db.prepare(query).all(...params);
+
+    if (tasks.length === 0) {
+        return res.status(404).json({
+            error: "No matching tasks found"
+        });
+    }
+
     res.status(200).json(tasks);
 });
+
 
 // GET task by ID (Live from SQLite)
 router.get("/tasks/:id", (req, res) => {
@@ -36,6 +64,7 @@ router.get("/tasks/:id", (req, res) => {
 
     res.status(200).json(task);
 });
+
 
 
 const memorylist = db.prepare("SELECT * FROM tasks").all();
@@ -90,7 +119,7 @@ router.put("/tasks/:id", (req, res) => {
     }
 
     db.prepare(
-        "UPDATE tasks SET title = ?, done = ? WHERE id = ?"
+        "UPDATE tasks SET title = ?, done = ?,updated_at = CURRENT_TIMESTAMP WHERE id = ?"
     ).run(
         taskFromUser.title ?? task.title,
         taskFromUser.done ?? task.done,
@@ -129,4 +158,17 @@ router.delete("/tasks/:id", (req, res) => {
         message: `Task ${taskId} deleted successfully`
     });
 });
+
+router.get('/stats', (req, res) => {
+    const stats = db.prepare(`
+        SELECT
+            COUNT(*) AS total,
+            SUM(CASE WHEN done = 1 THEN 1 ELSE 0 END) AS completed,
+            SUM(CASE WHEN done = 0 THEN 1 ELSE 0 END) AS pending
+        FROM tasks
+    `).get();
+
+    res.status(200).json(stats);
+});
+
 module.exports = router;
