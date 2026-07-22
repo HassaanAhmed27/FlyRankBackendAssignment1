@@ -65,7 +65,7 @@ router.post("/tasks", (req, res) => {
     res.status(201).json(task);
 });
 
-router.put('/tasks/:id', (req, res) => {
+router.put("/tasks/:id", (req, res) => {
     const taskId = req.params.id;
     const taskFromUser = req.body;
 
@@ -74,40 +74,59 @@ router.put('/tasks/:id', (req, res) => {
         ("title" in taskFromUser &&
             (!taskFromUser.title || taskFromUser.title.trim() === ""))
     ) {
-        return res.status(400).json({ error: "Invalid request body" });
+        return res.status(400).json({
+            error: "Invalid request body"
+        });
     }
 
-    for (let task of memorylist) {
-        if (task.id == taskId) {
-            const index = memorylist.indexOf(task);
+    const task = db.prepare(
+        "SELECT * FROM tasks WHERE id = ?"
+    ).get(taskId);
 
-            memorylist[index] = {
-                ...memorylist[index],
-                ...taskFromUser
-            };
-
-            return res.status(200).json(task);
-        }
+    if (!task) {
+        return res.status(404).json({
+            error: `Task ${taskId} not found`
+        });
     }
 
-    return res.status(404).json({ error: `Task ${taskId} not found` });
+    db.prepare(
+        "UPDATE tasks SET title = ?, done = ? WHERE id = ?"
+    ).run(
+        taskFromUser.title ?? task.title,
+        taskFromUser.done ?? task.done,
+        taskId
+    );
+
+    const updatedTask = db.prepare(
+        "SELECT * FROM tasks WHERE id = ?"
+    ).get(taskId);
+
+    res.status(204);
 });
 
-router.delete('/tasks/:id', (req, res) => {
+router.delete("/tasks/:id", (req, res) => {
     const taskId = req.params.id;
-    const task = req.body;
 
-    for (let task of memorylist) {
-        if (task.id == taskId) {
-            const index = memorylist.indexOf(task);
-
-            memorylist.splice(index, 1);
-
-            return res.sendStatus(204);
-        }
+    const task = db.prepare(
+        "SELECT * FROM tasks WHERE id = ?"
+    ).get(taskId);
+    
+    if (!task) {
+        return res.status(404).json({
+            error: `Task ${taskId} not found`
+        });
     }
 
-    return res.status(404).json({ error: `Task ${taskId} not found` });
-});
+    db.prepare(
+        "DELETE FROM tasks WHERE id = ?"
+    ).run(taskId);
 
+    const updatedTask = db.prepare(
+        "SELECT * FROM tasks WHERE id = ?"
+    ).get(taskId);
+
+    return res.status(204).json({
+        message: `Task ${taskId} deleted successfully`
+    });
+});
 module.exports = router;
