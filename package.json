@@ -19,9 +19,9 @@
     "start": "node index.js"
   },
   "dependencies": {
+    "better-sqlite3": "^11.10.0",
     "express": "^5.2.1",
     "nodemon": "^3.1.14",
-    "swagger-ui-express": "^5.0.1",
-    "better-sqlite3": "^11.10.0"
+    "swagger-ui-express": "^5.0.1"
   }
 }

@@ -1,8 +1,8 @@
 const path = require("path");
 const Database = require("better-sqlite3");
-const db = new Database(
-    path.join(__dirname, "../SQLITE/task.db")
-);
+// const db = new Database(
+//     path.join(__dirname, "../SQLITE/task.db")
+// );
 db.exec(`
     CREATE TABLE IF NOT EXISTS tasks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

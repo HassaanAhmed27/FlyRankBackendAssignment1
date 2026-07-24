@@ -1,245 +1,107 @@
 # Task API
 
-A simple RESTful Task API built with **Node.js**, **Express.js**, and **SQLite**. The project demonstrates CRUD operations using Express and persists task data using a SQLite database initialized automatically on application startup.
+A RESTful Task Management API built with Express.js. This project is developed in stages to demonstrate the progression from an in-memory API to SQLite and finally PostgreSQL using Docker.
 
 ---
 
-## Features
+# Assignment 1 - Simple CRUD Task API
 
-- Get API information
-- Health check endpoint
-- Create a task
-- Retrieve all tasks
-- Retrieve a task by ID
-- Update an existing task
-- Delete a task
-- Automatic SQLite database creation
-- Automatic table creation
-- Automatic seeding of sample tasks
-- Interactive API documentation using Swagger UI
+## Overview
 
----
-## Additional Features
+A basic RESTful API for managing tasks using an in-memory data structure.
 
-In addition to the core assignment requirements, the following enhancements were implemented:
+### Features
 
-- **Task Search**
-  - Search tasks by title using the `search` query parameter.
-  - Filter tasks by completion status using the `done` query parameter.
-  - Supports combining both filters in a single request.
+- Create Task
+- Read Tasks
+- Update Task
+- Delete Task
+- RESTful API using Express.js
 
-  **Examples**
-  ```http
-  GET /tasks?search=Milk
-  GET /tasks?done=true
-  GET /tasks?search=Milk&done=false
-  ```
-
-- **Task Statistics**
-  - Added a `GET /stats` endpoint that computes statistics directly in SQLite using SQL aggregate functions (`COUNT` and `SUM`).
-
-  Example response:
-
-  ```json
-  {
-    "total": 3,
-    "completed": 1,
-    "pending": 2
-  }
-  ```
-
-- **Timestamps**
-  - Added `created_at` and `updated_at` columns to the `tasks` table.
-  - `created_at` is automatically set when a task is created.
-  - `updated_at` is automatically updated whenever a task is modified.
-
----
-
-## Database Changes
-
-Adding new columns to the existing `tasks` table showed that changing a database schema is more involved than changing application code. This highlights why database migrations exist—they provide a safe and repeatable way to evolve the database structure while preserving existing data.
-
-## Technologies Used
-
-- Node.js
-- Express.js
-- JavaScript
-- SQLite
-- better-sqlite3
-- Swagger UI Express
-- OpenAPI 3.0
-
----
-
-# Why SQLite?
-
-SQLite was chosen because it:
-
-- Stores all data in a single database file.
-- Requires zero database server setup.
-- Is lightweight and easy to use.
-- Persists data between server restarts.
-- Is ideal for small applications and assignments.
-
----
-
-# Database
-
-The project automatically creates the SQLite database on first startup.
-
-Database location:
-
-```
-src/SQLITE/task.db
-```
-
-When the application starts it automatically:
-
-- Creates `task.db` if it does not exist.
-- Creates the `tasks` table.
-- Inserts three sample tasks if the table is empty.
-
-The database file is usually added to `.gitignore` so every new clone starts with a fresh database.
-
----
-
-## Installation
-
-Clone the repository
-
-```bash
-git clone https://github.com/HassaanAhmed27/FlyRankBackendAssignment1.git
-```
-
-Move into the project directory
-
-```bash
-cd Assignment1
-```
-
-Install dependencies
+### Run
 
 ```bash
 npm install
-```
-
----
-
-# Run the Project
-
-Start the server with a single command:
-
-```bash
 npm start
 ```
 
-The server runs at
+---
 
-```
-http://localhost:3000
-```
+# Assignment 2 - SQLite Database Integration
 
-Swagger UI is available at
+## Overview
 
-```
-http://localhost:3000/docs
+Replaced the in-memory data store with SQLite for persistent data storage.
+
+### Features
+
+- SQLite database
+- Automatic database creation
+- Seed data on first run
+- CRUD operations
+- Persistent storage
+
+### Run
+
+```bash
+npm install
+npm start
 ```
 
 ---
 
-## API Endpoints
+# Assignment 3 - PostgreSQL with Docker
 
-| Method | Endpoint | Description |
-|---------|----------|-------------|
-| GET | `/` | API information |
-| GET | `/health` | Health check |
-| GET | `/tasks` | Get all tasks |
-| GET | `/tasks/:id` | Get task by ID |
-| POST | `/tasks` | Create task |
-| PUT | `/tasks/:id` | Update task |
-| DELETE | `/tasks/:id` | Delete task |
+## Overview
 
----
+Configured a PostgreSQL database server using Docker.
 
-# Example SQL Query
+### Prerequisites
 
-The following query was used during Stage 4 to verify the database contents.
+- Docker Desktop
+- WSL 2 (Windows)
+
+### Start PostgreSQL
+
+```bash
+docker run --name taskdb -e POSTGRES_PASSWORD=dev -e POSTGRES_DB=tasks -p 5432:5432 -v taskdata:/var/lib/postgresql/data -d postgres:17
+```
+
+### Verify the Container
+
+```bash
+docker ps
+```
+
+### Connect to PostgreSQL
+
+```bash
+docker exec -it taskdb psql -U postgres -d tasks
+```
+
+### Verify Database
 
 ```sql
-SELECT * FROM tasks;
+\dt
 ```
 
-Example output
+Exit PostgreSQL:
 
-| id | title | done |
-|----|-------|------|
-| 1 | Bring Eggs | 1 |
-| 2 | Bring Milk | 0 |
-| 3 | Bring Bread | 0 |
-
----
-
-# Database Screenshot
-
-Add your screenshot here after opening the database in **DB Browser for SQLite**.
-
-Example:
-
-```
-images/database.png
-```
-
-```md
-![Database](images/database.png)
+```sql
+\q
 ```
 
 ---
 
-## Swagger UI
+## .gitignore
 
-### Screenshots
-
-![Swagger UI](images/swagger_ui.png)
-
-![Swagger UI](images/swagger_ui1.png)
-
-![Swagger UI](images/swagger_ui2.png)
-
-![Swagger UI](images/swagger_ui3.png)
-
-![Swagger UI](images/swagger_ui4.png)
-
-![Swagger UI](images/swagger_ui5.png)
-
-![Swagger UI](images/swagger_ui6.png)
-
----
-
-# Automatic Database Setup
-
-A fresh clone of the project requires **no manual database setup**.
-
-Simply run:
-
-```bash
-npm install
-npm start
+```gitignore
+node_modules/
+.env
 ```
-
-The application automatically:
-
-- Creates `task.db`
-- Creates the `tasks` table
-- Inserts the three sample tasks
-
-A new user can clone the repository and start the project in just a few minutes without any additional configuration.
 
 ---
 
 ## Author
 
-**Hassan Ahmed**
-
-Software Engineering Student
-
-Sir Syed University of Engineering & Technology
+Hassan Ahmed
