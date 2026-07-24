@@ -1,11 +1,18 @@
-const path = require("path");
-const Database = require("better-sqlite3");
-// const db = new Database(
-//     path.join(__dirname, "../SQLITE/task.db")
-// );
-db.exec(`
+// db.js
+const { Pool } = require('pg');
+require('dotenv').config();
+
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+});
+
+async function initDatabase() {
+
+
+
+    await pool.query(`
     CREATE TABLE IF NOT EXISTS tasks (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY ,
         title TEXT NOT NULL,
         done BOOLEAN DEFAULT FALSE,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -13,15 +20,29 @@ db.exec(`
     );
 `);
 
-const taskInsert=db.prepare(`select count(*) as count from tasks`);
-if(taskInsert.get().count===0){
-   const insert= db.prepare(`
-        insert into tasks( title,done) values( ?, ?);
-    `)
-    insert.run("Bring Eggs", 1);
-    insert.run("Bring Milk", 0);
-    insert.run("Bring Bread"   , 0);
+    const taskInsert =await pool.query(
+        `select count(*) as count from tasks`
+    );
+
+    if (Number(taskInsert.rows[0].count()===0)) {
+    await pool.query(`
+        insert into tasks( title,done) values( $1, $2)`,
+        ["Bring Eggs", true]
+    )
+    await pool.query(`
+        insert into tasks( title,done) values( $1, $2)`,
+        ["Bring Milk", false]
+    )
+    await pool.query(`
+        insert into tasks( title,done) values( $1, $2)`,
+        ["Bring Bread", false]
+    )
+    }
+    const tasks = pool.query("SELECT * FROM tasks");
+    console.log(tasks);
 }
-const tasks = db.prepare("SELECT * FROM tasks").all();
-console.log(tasks);
-module.exports = db;
+initDatabase().catch(err => {console.log("Database Isuse",err)})
+module.exports = {
+    query: (text, params) => pool.query(text, params),
+    pool // Exported if you ever need to manually close the pool later
+};
