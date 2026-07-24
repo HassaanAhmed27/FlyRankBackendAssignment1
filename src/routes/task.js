@@ -17,7 +17,7 @@ router.get("/health", (req, res) => {
 });
 
 // GET all tasks (Live from SQLite)
-router.get("/tasks", (req, res) => {
+router.get("/tasks", async  (req, res) => {
     const { search, done } = req.query;
 
     let query = "SELECT * FROM tasks";
@@ -25,21 +25,22 @@ router.get("/tasks", (req, res) => {
     const conditions = [];
 
     if (search) {
-        conditions.push("title LIKE ?");
         params.push(`%${search}%`);
+        conditions.push(`title ILIKE $${params.length}`);
+        
     }
 
     if (done !== undefined) {
-        conditions.push("done = ?");
-        params.push(done === "true" ? 1 : 0);
+       params.push(done==="true");
+       conditions.push(`done = $${params.length}`);
     }
 
     if (conditions.length > 0) {
         query += " WHERE " + conditions.join(" AND ");
     }
 
-    const tasks = db.prepare(query).all(...params);
-
+    const result =await db.query(query,params);
+    const tasks =result.rows;
     if (tasks.length === 0) {
         return res.status(404).json({
             error: "No matching tasks found"
@@ -51,27 +52,28 @@ router.get("/tasks", (req, res) => {
 
 
 // GET task by ID (Live from SQLite)
-router.get("/tasks/:id", (req, res) => {
-    const task = db
-        .prepare("SELECT * FROM tasks WHERE id = ?")
-        .get(req.params.id);
+router.get("/tasks/:id", async (req, res) => {
+    const tid=req.params.id
+    const task =await db.query("SELECT * FROM tasks WHERE id = $1",[tid])
 
-    if (!task) {
-        return res
-            .status(404)
-            .json({ error: `Task ${req.params.id} not found` });
-    }
 
-    res.status(200).json(task);
+    if (task.rows.length === 0) {
+    return res.status(404).json({
+        error: "Task not found"
+    });
+}
+
+    res.status(200).json(task.rows[0]);
 });
 
 
 
-const memorylist = db.prepare("SELECT * FROM tasks").all();
+// const reslt = await db.query("SELECT * FROM tasks");
+// const memorylist=reslt.rows;
 
 router.post("/tasks", (req, res) => {
     const task = req.body;
-    const newTask=db;
+    const newTask = db;
 
     if (!task.id) {
         task.id = `${memorylist.length + 1}`;
@@ -139,7 +141,7 @@ router.delete("/tasks/:id", (req, res) => {
     const task = db.prepare(
         "SELECT * FROM tasks WHERE id = ?"
     ).get(taskId);
-    
+
     if (!task) {
         return res.status(404).json({
             error: `Task ${taskId} not found`
